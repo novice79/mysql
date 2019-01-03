@@ -1,7 +1,22 @@
 
+// start mysql master(on: 192.168.1.113 )
+docker run -d -p 3306:3306 -p 33060:33060 --name um \
+-v /data/temp/mysql:/var/lib/mysql  \
+-e MYSQL_ROOT_PASSWORD=my-secret-pw \
+-e MYSQL_USER=david -e MYSQL_PASSWORD=mypassword -e MYSQL_DATABASE=mydb \
+test_um
 
-docker run -d -p 3306:3306 -p 33060:33060 --name um test_um
-docker run -d --name um_slave test_um 192.168.1.113
+// start mysql master(on: 192.168.1.113 )
+docker run -d -p 3306:3306 -p 33060:33060 --name um \
+-v /data/temp/mysql:/var/lib/mysql  \
+test_um
+
+docker run -it -p 3306:3306 -p 33060:33060 --name um --entrypoint=bash test_um
+
+// start mysql slave( repl from 192.168.1.113)
+docker run -d --name um_slave \
+-v /data/temp/mysql_bak:/var/lib/mysql  \
+test_um 192.168.1.113
 
 docker rm -f $(docker ps -a -q)
 
@@ -21,3 +36,7 @@ SELECT TABLE_NAME,
        ENGINE
 FROM   information_schema.TABLES
 WHERE  TABLE_SCHEMA = 'aaa_db';
+
+CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20), species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);
+
+mysqld --initialize --user=mysql --datadir=/var/lib/mysql

@@ -1,8 +1,13 @@
 #!/usr/bin/node
 const fs = require('fs');
 const { spawn, spawnSync, exec, execSync } = require('child_process');
+execSync('chown -R mysql:mysql /var/lib/mysql');
+if( !fs.existsSync("/var/lib/mysql/mysql") ) {
+    // todo: clear files in /var/lib/mysql
+    execSync('mysqld --initialize --user=mysql --datadir=/var/lib/mysql');  // or --initialize-insecure
+}
 const uid = parseInt( execSync('id -u mysql').toString() );
-// console.log(uid);
+const gid = parseInt( execSync('id -g mysql').toString() );
 const randInt = (min, max)=>Math.floor(Math.random() * (max - min + 1)) + min;
 let s_id = 1, extra_para='', init_sql;
 const sql_init_file = '/tmp/mysql-init.sql';
@@ -17,7 +22,7 @@ if (paras.length == 0) {
     init_sql = 
     `
     CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
-    GRANT ALL ON *.* TO 'root'@'%';
+    GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
     CREATE USER IF NOT EXISTS 'david'@'%' IDENTIFIED BY 'freego';
     GRANT ALL ON *.* TO 'david'@'%';
     CREATE USER IF NOT EXISTS 'slaveuser'@'%' IDENTIFIED WITH sha256_password BY 'freego';
@@ -32,7 +37,7 @@ if (paras.length == 0) {
         `;
     }
     if(MYSQL_DATABASE && MYSQL_USER){
-        init_sql += `GRANT ALL ON '${MYSQL_DATABASE}'.* TO '${MYSQL_USER}'@'%';`;
+        init_sql += `GRANT ALL ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';`;
     }
     init_sql += 'FLUSH PRIVILEGES ;';
     
@@ -51,7 +56,10 @@ if (paras.length == 0) {
     extra_para = '--master-info-repository=TABLE';
 }
 fs.writeFileSync(sql_init_file, init_sql);
-const mysqld = exec(`mysqld --init-file="${sql_init_file}" --server-id=${s_id} --log-bin=mysql-bin --gtid-mode=ON --enforce-gtid-consistency=true --log-slave-updates ${extra_para}`, {uid});
+const mysqld = exec(
+    `mysqld --init-file="${sql_init_file}" --server-id=${s_id} --log-bin=mysql-bin --gtid-mode=ON --enforce-gtid-consistency=true --log-slave-updates ${extra_para}`, 
+    {uid, gid}
+);
 mysqld.stdout.on('data', data => console.log(data));
 mysqld.stderr.on('data', data => console.log(data));
 mysqld.on('close', (code) => {
