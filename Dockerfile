@@ -25,10 +25,11 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && sudo apt-
 # nodejs end
 
 # mysql begin
-RUN apt-key adv --keyserver pgp.mit.edu --recv-keys 8C718D3B5072E1F5
-RUN echo "deb http://repo.mysql.com/apt/ubuntu/ bionic mysql-8.0" > /etc/apt/sources.list.d/mysql.list
-RUN debconf-set-selections <<< "mysql-community-server mysql-community-server/root-pass password freego" \
-    && debconf-set-selections <<< "mysql-community-server mysql-community-server/re-root-pass password freego" \
+RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.11-1_all.deb && dpkg -i mysql*.deb && rm mysql*.deb
+RUN { \
+		echo mysql-community-server mysql-community-server/root-pass password 'freego'; \
+		echo mysql-community-server mysql-community-server/re-root-pass password 'freego'; \
+	} | debconf-set-selections \
 	&& apt-get update && apt-get install -y \
         mysql-server lsof 
 	# && rm -rf /var/lib/apt/lists/* 
@@ -36,11 +37,11 @@ RUN debconf-set-selections <<< "mysql-community-server mysql-community-server/ro
 
 # mysql end
 
-COPY init.sh /
-
+COPY init.js /
+RUN chmod +x /init.js && rm -f /var/lib/mysql/auto.cnf
 VOLUME ["/var/lib/mysql"]
 
 
-EXPOSE  3306
+EXPOSE  3306 33060
 
-ENTRYPOINT ["/init.sh"]
+ENTRYPOINT ["/init.js"]

@@ -1,0 +1,23 @@
+
+
+docker run -d -p 3306:3306 -p 33060:33060 --name um test_um
+docker run -d --name um_slave test_um 192.168.1.113
+
+docker rm -f $(docker ps -a -q)
+
+docker build -t test_um .
+
+mysql --protocol tcp -pfreego
+mysql -h 127.0.0.1 -u root -pfreego
+
+SELECT User, Host FROM mysql.user;
+
+SELECT @@character_set_database, @@collation_database;
+SELECT @@character_set_server, @@collation_server;
+
+SHOW TABLE STATUS WHERE Name = 'aaa_tbl';
+SHOW CREATE TABLE aaa_tbl;
+SELECT TABLE_NAME,
+       ENGINE
+FROM   information_schema.TABLES
+WHERE  TABLE_SCHEMA = 'aaa_db';
