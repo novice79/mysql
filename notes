@@ -2,8 +2,8 @@
 // start mysql master(on: 192.168.1.113 )
 docker run -d -p 3306:3306 -p 33060:33060 --name um \
 -v /data/temp/mysql:/var/lib/mysql  \
--e MYSQL_ROOT_PASSWORD=my-secret-pw \
--e MYSQL_USER=david -e MYSQL_PASSWORD=mypassword -e MYSQL_DATABASE=mydb \
+-e MYSQL_ROOT_PASSWORD=myrootpw \
+-e MYSQL_USER=novice -e MYSQL_PASSWORD=mypassword -e MYSQL_DATABASE=mydb \
 test_um
 
 // start mysql master(on: 192.168.1.113 )
@@ -40,3 +40,8 @@ WHERE  TABLE_SCHEMA = 'aaa_db';
 CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20), species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);
 
 mysqld --initialize --user=mysql --datadir=/var/lib/mysql
+
+docker system prune
+docker image prune -f
+
+pkg -t node10-linux-x64 init.js

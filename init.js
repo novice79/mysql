@@ -37,9 +37,9 @@ if (paras.length == 0) {
         `;
     }
     if(MYSQL_DATABASE && MYSQL_USER){
-        init_sql += `GRANT ALL ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';`;
+        init_sql += `GRANT ALL ON *.* TO '${MYSQL_USER}'@'%';`;
     }
-    init_sql += 'FLUSH PRIVILEGES ;';
+    init_sql += 'FLUSH PRIVILEGES;';
     
 } else {
     init_sql = 
