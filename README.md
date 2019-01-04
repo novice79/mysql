@@ -1,7 +1,7 @@
-MySQL 8.0 master/slave container
+MySQL 8.0(8.0.13 at the moment) master/slave container
 
 Usage:
-// start mysql master(on: 192.168.1.113 )
+// start mysql master(suppose in: 192.168.1.113 )
 docker run -d -p 3306:3306 -p 33060:33060 --name um \
 -v /data/temp/mysql:/var/lib/mysql  \
 novice/mysql

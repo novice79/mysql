@@ -31,9 +31,8 @@ RUN { \
 		echo mysql-community-server mysql-community-server/re-root-pass password 'freego'; \
 	} | debconf-set-selections \
 	&& apt-get update && apt-get install -y \
-        mysql-server lsof 
-	# && rm -rf /var/lib/apt/lists/* 
-    #&& apt-get clean && apt-get autoclean && apt-get remove  
+        mysql-server lsof \
+	&& rm -rf /var/lib/apt/lists/* 
 
 # mysql end
 

@@ -1,6 +1,24 @@
 #!/usr/bin/node
 const fs = require('fs');
 const { spawn, spawnSync, exec, execSync } = require('child_process');
+// some util functions begin-----------------------
+function pad(num, size) {
+    let s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+const now_str =
+    (dt = new Date()) =>
+        `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()} ${dt.getHours()}:${dt.getMinutes()}:${dt.getSeconds()}.${pad(dt.getMilliseconds(), 3)}`
+            .replace(/\b\d\b/g, '0$&');
+
+console.logCopy = console.log.bind(console);
+console.log = function(...args) {
+    if (args.length) {
+        this.logCopy(`[${now_str()}]`, ...args);
+    }
+};
+// util functions end -----------------------------
 execSync('chown -R mysql:mysql /var/lib/mysql');
 if( !fs.existsSync("/var/lib/mysql/mysql") ) {
     // todo: clear files in /var/lib/mysql
@@ -56,12 +74,21 @@ if (paras.length == 0) {
     extra_para = '--master-info-repository=TABLE';
 }
 fs.writeFileSync(sql_init_file, init_sql);
-const mysqld = exec(
-    `mysqld --init-file="${sql_init_file}" --server-id=${s_id} --log-bin=mysql-bin --gtid-mode=ON --enforce-gtid-consistency=true --log-slave-updates ${extra_para}`, 
-    {uid, gid}
-);
-mysqld.stdout.on('data', data => console.log(data));
-mysqld.stderr.on('data', data => console.log(data));
-mysqld.on('close', (code) => {
-    console.log(`mysqld exited with code ${code}`);
-});
+
+(function start_mysql(){
+    const start_dt = new Date().getTime();
+    const mysqld = exec(
+        `mysqld --init-file="${sql_init_file}" --server-id=${s_id} --log-bin=mysql-bin --gtid-mode=ON --enforce-gtid-consistency=true --log-slave-updates ${extra_para}`, 
+        {uid, gid}
+    );
+    mysqld.stdout.on('data', data => console.log(data));
+    mysqld.stderr.on('data', data => console.log(data));
+    mysqld.on('close', (code) => {
+        console.log(`mysqld exited with code ${code}`);
+        const end_dt = new Date().getTime();
+        if(end_dt - start_dt > 3600*1000){
+            // restart mysqld
+            setTimeout(()=>start_mysql(), 2000);
+        }
+    });
+})();
