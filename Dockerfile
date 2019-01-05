@@ -15,9 +15,8 @@ RUN apt-get update -y && apt-get install -y tzdata \
 ENV TZ=Asia/Chongqing
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-
 COPY init /
 RUN rm -f /var/lib/mysql/auto.cnf
-
+EXPOSE 3306 33060
 
 ENTRYPOINT ["/init"]
