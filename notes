@@ -45,3 +45,5 @@ docker system prune
 docker image prune -f
 
 pkg -t node10-linux-x64 init.js
+
+ git push --all origin -u
