@@ -1,5 +1,5 @@
 FROM mysql
-MAINTAINER David <david@cninone.com>
+LABEL maintainer="David <david@cninone.com>"
 
 # Get noninteractive frontend for Debian to avoid some problems:
 #    debconf: unable to initialize frontend: Dialog
