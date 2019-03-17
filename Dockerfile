@@ -14,7 +14,8 @@ RUN apt-get update -y && apt-get install -y tzdata locales procps net-tools \
 	&& locale-gen en_US.UTF-8 zh_CN.UTF-8
 
 ENV TZ=Asia/Chongqing
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone ; \
+	sed '/\[mysqld\]/a default_authentication_plugin=mysql_native_password' -i /etc/mysql/conf.d/docker.cnf
 
 COPY init.sh /
 RUN rm -f /var/lib/mysql/auto.cnf

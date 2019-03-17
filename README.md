@@ -1,4 +1,4 @@
-MySQL 8.0(8.0.13 at the moment) master/slave container
+MySQL 8.0(8.0.15 at the moment) master/slave container
 
 Usage:
 // start mysql master(suppose in: 192.168.1.113 )
