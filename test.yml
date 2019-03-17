@@ -8,6 +8,12 @@ services:
         constraints: [node.role == manager]
     volumes:
       - "/data/mysql_test/mysql:/var/lib/mysql"
+    configs:
+      - source: my_config
+        target: /var/www/notes.txt
+        uid: '103'
+        gid: '103'
+        mode: 0440
     # networks:
     #   - webnet
   mysql-bak:
@@ -33,7 +39,13 @@ services:
         constraints: [node.role == manager]
     volumes:
       - "/data/mysql_test/mysql_bak1:/var/lib/mysql"
+    configs:
+      - source: my_config
+        target: /var/www/notes.txt
     command: [mysql]
+configs:
+  my_config:
+    file: ./notes
 # networks:
 #   webnet:
 
