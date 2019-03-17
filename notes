@@ -47,3 +47,8 @@ docker image prune -f
 pkg -t node10-linux-x64 init.js
 
  git push --all origin -u
+
+//test reuse backup dir files as master. OK!
+docker run -d -p 3306:3306 -p 33060:33060 --name um \
+-v /data/mysql_test/mysql_bak1:/var/lib/mysql  \
+novice/mysql
