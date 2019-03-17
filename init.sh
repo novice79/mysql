@@ -6,10 +6,7 @@ log () {
 
 
 chown -R mysql:mysql /var/lib/mysql
-if [ ! -d /var/lib/mysql/mysql ]; then
-    rm -rf /var/lib/mysql/*
-    mysqld --initialize --user=mysql --datadir=/var/lib/mysql
-fi
+
 sql_init_file='/tmp/mysql-init.sql'
 s_id=1
 if [ "$#" -ne 1 ]; then
@@ -41,8 +38,15 @@ MASTER_PASSWORD='freego',
 MASTER_AUTO_POSITION=1;
 START SLAVE;
 EOT
-    EX_PARA="--master-info-repository=TABLE"
+    EX_PARA="--master-info-repository=TABLE --relay-log=$(hostname)-relay-bin"
     s_id=$((2 + RANDOM))
+    # replicate from fresh slate?
+    rm -rf /var/lib/mysql/*
+fi
+
+if [ ! -d /var/lib/mysql/mysql ]; then
+    rm -rf /var/lib/mysql/*
+    mysqld --initialize --user=mysql --datadir=/var/lib/mysql
 fi
 
 mysqld --init-file="${sql_init_file}" --user=root --server-id=${s_id} --log-bin=mysql-bin --gtid-mode=ON --enforce-gtid-consistency=true --log-slave-updates ${EX_PARA}
